@@ -1,0 +1,3 @@
+[submodule "src/retro"]
+	path = src/retro
+	url = https://github.com/Css-Wizard98/RetroAnalytics.git
