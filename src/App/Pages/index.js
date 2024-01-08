@@ -8,6 +8,7 @@ import {
 } from "../../retro";
 import { Route, Switch } from "react-router-dom/cjs/react-router-dom.min";
 import Block from "./BlockData";
+import Bulk from "./BulkData";
 import { HeadingItem } from "@atlaskit/menu";
 
 const Dashboard = () => {
@@ -33,7 +34,7 @@ const Dashboard = () => {
             <Sidebar flexible={false} items={ITEMS} logo={LOGO} data={{ name: 'BlockBullAnalytics' }} />
             <Switch>
                 <Route path="/" exact component={Block} />
-                {/* <Route path="/bulk" component={TermsOfUse} /> */}
+                <Route path="/bulk" component={Bulk} />
             </Switch>
         </div>
     )
