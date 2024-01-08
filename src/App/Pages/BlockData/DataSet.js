@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import csvFilePath from '../../../../src/Data/BLOCK_DELAS_HISTORY.csv';
 import CsvParser from "../../Utils/CsvParser"
-import { Loader, PaginationCardTableSwitch, Seperator, KeyValue, StatusChip, Empty } from "../../../retro";
+import { Loader, PaginationCardTableSwitch, Seperator, KeyValue, StatusChip, Empty, Button } from "../../../retro";
 import moment from "moment";
 import { convertToLakh, numberWithCommas } from "../../Utils/ConvertToLakh";
+import toast from 'react-hot-toast';
 
 const DataSet = ({ date, Mode, val }) => {
     const [Data, setData] = useState([]);
@@ -32,21 +33,64 @@ const DataSet = ({ date, Mode, val }) => {
     useEffect(() => {
         if (date && Data) {
             let FILTERED = Data.filter(el => (moment(el[0], 'DD-MMMM-YYYY').valueOf() >= date.startDate) && (moment(el[0], 'DD-MMMM-YYYY').valueOf() <= date.endDate));
+            if(val){
+                FILTERED = FILTERED.filter(item => {
+                    return JSON.stringify(item).toLowerCase().includes(val.toLowerCase());
+                })
+            }
             setFilteredData(FILTERED)
         }
-    }, [Data, date])
+    }, [Data, date,val])
+
+    const Reset = () => {
+        if (date && Data) {
+            let FILTERED = Data.filter(el => (moment(el[0], 'DD-MMMM-YYYY').valueOf() >= date.startDate) && (moment(el[0], 'DD-MMMM-YYYY').valueOf() <= date.endDate));
+            if(val){
+                FILTERED = FILTERED.filter(item => {
+                    return JSON.stringify(item).toLowerCase().includes(val.toLowerCase());
+                })
+            }
+            setFilteredData(FILTERED)
+        }
+        toast.success("Data Reset")
+    }
+
+    const RemoveSettled = () => {
+        let temp_data = [...FilteredData];
+        let cleared_data = [];
+        temp_data = temp_data.map(ele=>{
+            let obj = FilteredData.find(el=> el[0]===ele[0] && el[2]===ele[2] && el[3]===ele[3] && ((el[4]=="SELL" && ele[4]==="BUY") || (ele[4]=="SELL" && el[4]==="BUY")));
+            console.log(obj);
+            if(!obj){
+                cleared_data.push(ele);
+            }
+        })
+        toast.success("DONE")
+        console.log(cleared_data);
+        setFilteredData(cleared_data);
+    }
+
+    const RemoveBuyers = () => {
+        
+    }
+
+    const RemoveSell = () => {
+        let FILTERED = FilteredData.filter(el=>el[4]==="BUY");
+        setFilteredData(FILTERED);
+        toast.success("DONE")
+    }
 
     //filter based on data points
-    useEffect(() => {
-        if (val) {
-            const Filtered = [...Data].filter(item => {
-                return JSON.stringify(item).toLowerCase().includes(val.toLowerCase());
-            })
-            setFilteredData(Filtered);
-        } else {
-            setFilteredData(Data);
-        }
-    }, [val])
+    // useEffect(() => {
+    //     if (val) {
+    //         const Filtered = [...FilteredData].filter(item => {
+    //             return JSON.stringify(item).toLowerCase().includes(val.toLowerCase());
+    //         })
+    //         setFilteredData(Filtered);
+    //     } else {
+    //         setFilteredData(FilteredData);
+    //     }
+    // }, [val])
 
     if (!Data.length) {
         return (
@@ -55,6 +99,12 @@ const DataSet = ({ date, Mode, val }) => {
     } else {
         return (
             <div>
+                <div className="flex" style={{gap:'5px'}}>
+                    <Button className="btn-sm btn-primary" onClick={RemoveSettled}>Remove Settled</Button>
+                    {/* <Button className="btn-sm btn-primary" onClick={RemoveBuyers}>Remove Buyers</Button> */}
+                    <Button className="btn-sm btn-primary" onClick={RemoveSell}>Remove Sell</Button>
+                    <Button className="btn-sm btn-primary" onClick={Reset}>Reset</Button>
+                </div>
                 <PaginationCardTableSwitch
                     mode={Mode}
                     data={FilteredData}
@@ -173,7 +223,7 @@ const DataSet = ({ date, Mode, val }) => {
                             'Date'
                         ].map(item => ({
                             title: item,
-                            weight: item === "Details" ? 2 : item === "Asked by" ? 1.5 : item === 'Date' ? 1 : 1
+                            weight: item === "Details" ? 1.5 : item === "Asked by" ? 1.5 : item === 'Date' ? 1 : 1
                         }))}
                 />
             </div>
