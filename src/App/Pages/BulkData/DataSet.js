@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
 import csvFilePath from '../../../../src/Data/BULK_DEALS_HISTORY.csv';
 import CsvParser from "../../Utils/CsvParser"
-import { Loader, PaginationCardTableSwitch, Seperator, KeyValue, StatusChip, Empty, Button, TOAST } from "../../../retro";
+import { Loader, PaginationCardTableSwitch, Seperator, KeyValue, StatusChip, Empty, Button, TOAST ,SidePane} from "../../../retro";
 import moment from "moment";
 import { convertToLakh, numberWithCommas } from "../../Utils/ConvertToLakh";
 import toast from 'react-hot-toast';
+import BuyerHistory from "./BuyerHistory";
 
 const DataSet = ({ date, Mode, val }) => {
     const [Data, setData] = useState([]);
     const [headers, setHeaders] = useState([]);
     const [FilteredData, setFilteredData] = useState([]);
     const [Loading, setLoading] = useState(false);
+    const [buyer,setBuyer] = useState(undefined);
 
     //fetch all data initially
     useEffect(() => {
@@ -170,7 +172,7 @@ const DataSet = ({ date, Mode, val }) => {
                             {
                                 weight: 1,
                                 children: (
-                                    <div style={{ overflow: 'hidden' }}>
+                                    <div onClick={()=>setBuyer({buyerName:item[3],stockId:item[1],stockName:item[2]})} className="hover-color" style={{ overflow: 'hidden',cursor:'pointer' }}>
                                         {item[3]}
                                     </div>
                                 )
@@ -225,6 +227,9 @@ const DataSet = ({ date, Mode, val }) => {
                             weight: item === "Details" ? 1.5 : item === "Asked by" ? 1.5 : item === 'Date' ? 1 : 1
                         }))}
                 />
+                {
+                    buyer && <BuyerHistory data={Data} title={buyer} onClose={()=>setBuyer(undefined)}/>
+                }
             </div>
         )
     }
